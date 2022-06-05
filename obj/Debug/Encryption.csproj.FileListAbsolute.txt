@@ -1,0 +1,15 @@
+C:\Users\Nikita\source\repos\Encryption\Encryption\bin\Debug\Encryption.exe.config
+C:\Users\Nikita\source\repos\Encryption\Encryption\bin\Debug\Encryption.exe
+C:\Users\Nikita\source\repos\Encryption\Encryption\bin\Debug\Encryption.pdb
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption.csproj.AssemblyReference.cache
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\MainWindow.g.cs
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\App.g.cs
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption_MarkupCompile.cache
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption_MarkupCompile.lref
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\MainWindow.baml
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption.g.resources
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption.Properties.Resources.resources
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption.csproj.GenerateResource.cache
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption.csproj.CoreCompileInputs.cache
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption.exe
+C:\Users\Nikita\source\repos\Encryption\Encryption\obj\Debug\Encryption.pdb
