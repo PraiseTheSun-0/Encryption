@@ -10,12 +10,12 @@
     <Grid Background="White">
         <Button x:Name="ChooseImageButton" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="32" Width="220" Content="Выбрать изображение" FontSize="20" Background="LightGray" Click="ChooseImageButton_Click"></Button>
         <Grid x:Name="Buttons" Margin="13,54,1084,551" >
-            <RadioButton Margin="0,0,0,45" Content="Шифрование" FontSize="20" VerticalContentAlignment="Center" IsChecked="True" GroupName="Task" Height="40"/>
-            <RadioButton Margin="0,45,0,0" Content="Дешифрование" FontSize="20" VerticalContentAlignment="Center" Height="40" GroupName="Task"/>
+            <RadioButton x:Name="Encrypt" Margin="0,0,0,45" Content="Шифрование" FontSize="20" VerticalContentAlignment="Center" IsChecked="True" GroupName="Task" Height="40"/>
+            <RadioButton x:Name="Decrypt" Margin="0,45,0,0" Content="Дешифрование" FontSize="20" VerticalContentAlignment="Center" Height="40" GroupName="Task"/>
         </Grid>
         <Grid Margin="13,144,1129,411" Background="Gainsboro">
             <Label Content="Ключ" HorizontalAlignment="Left" Height="30" Margin="10,10,0,0" VerticalAlignment="Top" Width="112" Padding="5,0,0,0" FontSize="20"/>
-            <ComboBox HorizontalAlignment="Left" Height="32" Margin="10,45,0,0" VerticalAlignment="Top" Width="100" FontSize="16">
+            <ComboBox x:Name="Colors" HorizontalAlignment="Left" Height="32" Margin="10,45,0,0" VerticalAlignment="Top" Width="100" FontSize="16">
                 <ComboBoxItem IsSelected="True" Content="rgb"></ComboBoxItem>
                 <ComboBoxItem Content="rbg"></ComboBoxItem>
                 <ComboBoxItem Content="gbr"></ComboBoxItem>
@@ -23,7 +23,7 @@
                 <ComboBoxItem Content="grb"></ComboBoxItem>
                 <ComboBoxItem Content="brg"></ComboBoxItem>
             </ComboBox>
-            <ComboBox HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,82,0,0" Height="32" Width="100" FontSize="16">
+            <ComboBox x:Name="Direction" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,82,0,0" Height="32" Width="100" FontSize="16">
                 <ComboBoxItem IsSelected="True" Content="00100111"></ComboBoxItem>
                 <ComboBoxItem Content="11011000"></ComboBoxItem>
                 <ComboBoxItem Content="10110001"></ComboBoxItem>
@@ -32,9 +32,11 @@
         </Grid>
         <Button x:Name="StartButton" Content="Старт" HorizontalAlignment="Left" Margin="13,285,0,0" VerticalAlignment="Top" Width="87" Height="31" FontSize="20" Background="#FFDEDEDE" Click="StartButton_Click"/>
         <TextBox x:Name="Text" HorizontalAlignment="Left" Margin="13,321,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="350" Width="322" FontSize="16"/>
-        <Grid Margin="340,10,10,10">
-            <Image x:Name="ImageContainer" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" />
-        </Grid>
+        <Border Margin="340,10,10,10" BorderBrush="#FFA6A6A6" BorderThickness="1" Background="Gainsboro">
+            <Grid>
+                <Image x:Name="ImageContainer" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center" />
+            </Grid>
+        </Border>
 
     </Grid>
 </Window>
