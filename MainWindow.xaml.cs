@@ -63,6 +63,51 @@ namespace Encryption
             }
         }
 
+        private void EncodeBit(ref Bitmap bmp, string text, int i, int k, ref bool done)
+        {
+            char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
+            System.Drawing.Color currentPixel = bmp.GetPixel(k, i);
+
+            if (text[text.Length - charCounter - 1] == '0' &&
+                Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 1)
+            {
+                ChangeColor(currentColor, ref currentPixel);
+                bmp.SetPixel(k, i, currentPixel);
+            }
+            else if (text[text.Length - charCounter - 1] == '1' &&
+                Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 0)
+            {
+                ChangeColor(currentColor, ref currentPixel);
+                bmp.SetPixel(k, i, currentPixel);
+
+            }
+
+            colorCounter++;
+            charCounter--;
+            if (charCounter == 0) done = true;
+        }
+
+        private void DecodeBit(ref string result, ref byte end, ref int byteCounter, ref bool done, int k, int i)
+        {
+            char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
+            System.Drawing.Color currentPixel = bitmap.GetPixel(k, i);
+            int bit = Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2;
+            result += bit;
+            end <<= 1;
+            end += (byte)bit;
+            byteCounter++;
+
+            colorCounter++;
+            if (byteCounter == 8)
+            {
+                byteCounter = 0;
+                if (end == 0)
+                {
+                    done = true;
+                }
+            }
+        }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -72,7 +117,6 @@ namespace Encryption
         {
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Title = "Изображение";
-            dlg.InitialDirectory = @"C:\Users\Nikita\Desktop";
             dlg.Filter = "Image files (*.bmp;*.jpg;*.jpeg)|*.bmp;*.jpg;*.jpeg|All Files (*.*)|*.*";
             dlg.RestoreDirectory = true;
 
@@ -97,25 +141,27 @@ namespace Encryption
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            if (bitmap != null)
+            try
             {
                 if ((bool)Encrypt.IsChecked)
                 {
-                    if (Text.Text.Length > 0) 
-                    { 
+                    if (Text.Text.Length > 0)
+                    {
                         Bitmap bitmapConvert = new Bitmap(bitmap);
-                        bitmapConvert.Save(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted_tmp.bmp", ImageFormat.Bmp);
-                        bitmapConvert.Dispose();
+                        bitmapConvert.Save(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted_tmp.bmp", ImageFormat.Bmp);   //format to bmp
+                        bitmapConvert.Dispose();    //free resources
                         Bitmap copycopy = new Bitmap(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted_tmp.bmp");
-                        Bitmap bitmapCopy = new Bitmap(copycopy);
+                        Bitmap bitmapCopy = new Bitmap(copycopy);   //working with copy in bmp format
                         copycopy.Dispose();
+                        if (File.Exists(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted_tmp.bmp"))   //deleting temporary copy
+                            File.Delete(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted_tmp.bmp");
 
-                        string binaryText = StringToBinary(Text.Text) + "00000000";
+                        string binaryText = StringToBinary(Text.Text) + "00000000"; //marking the end of the message
                         charCounter = binaryText.Length - 1;
                         colorCounter = 0;
                         bool done = false;
 
-                        switch (Direction.SelectedIndex)
+                        switch (Direction.SelectedIndex)    //corner where we are starting from
                         {
                             case 0:
                                 for (int i = 0; i < bitmap.Height; i++)
@@ -123,32 +169,9 @@ namespace Encryption
                                     if (done) break;
                                     for (int k = 0; k < bitmap.Width;)
                                     {
-                                        char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                        System.Drawing.Color currentPixel = bitmapCopy.GetPixel(k, i);
-
-                                        if (binaryText[binaryText.Length - charCounter - 1] == '0' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 1)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-                                        }
-                                        else if (binaryText[binaryText.Length - charCounter - 1] == '1' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 0)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-
-                                        }
-
-                                        charCounter--;
-                                        if (charCounter == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-
-                                        colorCounter++;
-                                        if (colorCounter == 3)
+                                        EncodeBit(ref bitmapCopy, binaryText, i, k, ref done); //hiding our bit of information in pixel's R/G/B 
+                                        if (done) break;
+                                        if (colorCounter == 3)  //moving to next pixel
                                         {
                                             k++;
                                             colorCounter = 0;
@@ -163,31 +186,8 @@ namespace Encryption
                                     if (done) break;
                                     for (int k = bitmap.Width - 1; k >= 0;)
                                     {
-                                        char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                        System.Drawing.Color currentPixel = bitmapCopy.GetPixel(k, i);
-
-                                        if (binaryText[binaryText.Length - charCounter - 1] == '0' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 1)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-                                        }
-                                        else if (binaryText[binaryText.Length - charCounter - 1] == '1' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 0)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-
-                                        }
-
-                                        charCounter--;
-                                        if (charCounter == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-
-                                        colorCounter++;
+                                        EncodeBit(ref bitmapCopy, binaryText, i, k, ref done);
+                                        if (done) break;
                                         if (colorCounter == 3)
                                         {
                                             k--;
@@ -203,31 +203,8 @@ namespace Encryption
                                     if (done) break;
                                     for (int i = 0; i < bitmap.Height;)
                                     {
-                                        char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                        System.Drawing.Color currentPixel = bitmapCopy.GetPixel(k, i);
-
-                                        if (binaryText[binaryText.Length - charCounter - 1] == '0' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 1)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-                                        }
-                                        else if (binaryText[binaryText.Length - charCounter - 1] == '1' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 0)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-
-                                        }
-
-                                        charCounter--;
-                                        if (charCounter == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-
-                                        colorCounter++;
+                                        EncodeBit(ref bitmapCopy, binaryText, i, k, ref done);
+                                        if (done) break;
                                         if (colorCounter == 3)
                                         {
                                             i++;
@@ -243,31 +220,8 @@ namespace Encryption
                                     if (done) break;
                                     for (int i = bitmap.Height - 1; i >= 0;)
                                     {
-                                        char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                        System.Drawing.Color currentPixel = bitmapCopy.GetPixel(k, i);
-
-                                        if (binaryText[binaryText.Length - charCounter - 1] == '0' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 1)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-                                        }
-                                        else if (binaryText[binaryText.Length - charCounter - 1] == '1' &&
-                                            Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2 == 0)
-                                        {
-                                            ChangeColor(currentColor, ref currentPixel);
-                                            bitmapCopy.SetPixel(k, i, currentPixel);
-
-                                        }
-
-                                        charCounter--;
-                                        if (charCounter == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-
-                                        colorCounter++;
+                                        EncodeBit(ref bitmapCopy, binaryText, i, k, ref done);
+                                        if (done) break;
                                         if (colorCounter == 3)
                                         {
                                             i--;
@@ -279,13 +233,9 @@ namespace Encryption
                                 break;
                         }
 
-                        System.Drawing.Color test = bitmapCopy.GetPixel(0, 0);
-
-                        bitmapCopy.Save(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted.bmp", ImageFormat.Bmp);
+                        bitmapCopy.Save(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted.bmp", ImageFormat.Bmp);  //saving new image with hidden message
                         bitmapCopy.Dispose();
 
-                        if (System.IO.File.Exists(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted_tmp.bmp"))
-                            System.IO.File.Delete(selectedFileName.Substring(0, selectedFileName.LastIndexOf('.')) + "_encrypted_tmp.bmp");
                         MessageBox.Show("Изображение сохранено");
                     }
                     else
@@ -309,24 +259,8 @@ namespace Encryption
                                 if (done) break;
                                 for (int k = 0; k < bitmap.Width;)
                                 {
-                                    char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                    System.Drawing.Color currentPixel = bitmap.GetPixel(k, i);
-                                    int bit = Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2;
-                                    result += bit;
-                                    end <<= 1;
-                                    end += (byte)bit;
-                                    byteCounter++;
-
-                                    colorCounter++;
-                                    if (byteCounter == 8)
-                                    {
-                                        byteCounter = 0;
-                                        if (end == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-                                    }
+                                    DecodeBit(ref result, ref end, ref byteCounter, ref done, k, i);
+                                    if (done) break;
                                     if (colorCounter == 3)
                                     {
                                         colorCounter = 0;
@@ -341,24 +275,8 @@ namespace Encryption
                                 if (done) break;
                                 for (int k = bitmap.Width - 1; k >= 0;)
                                 {
-                                    char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                    System.Drawing.Color currentPixel = bitmap.GetPixel(k, i);
-                                    int bit = Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2;
-                                    result += bit;
-                                    end <<= 1;
-                                    end += (byte)bit;
-                                    byteCounter++;
-
-                                    colorCounter++;
-                                    if (byteCounter == 8)
-                                    {
-                                        byteCounter = 0;
-                                        if (end == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-                                    }
+                                    DecodeBit(ref result, ref end, ref byteCounter, ref done, k, i);
+                                    if (done) break;
                                     if (colorCounter == 3)
                                     {
                                         colorCounter = 0;
@@ -373,24 +291,8 @@ namespace Encryption
                                 if (done) break;
                                 for (int i = 0; i < bitmap.Height;)
                                 {
-                                    char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                    System.Drawing.Color currentPixel = bitmap.GetPixel(k, i);
-                                    int bit = Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2;
-                                    result += bit;
-                                    end <<= 1;
-                                    end += (byte)bit;
-                                    byteCounter++;
-
-                                    colorCounter++;
-                                    if (byteCounter == 8)
-                                    {
-                                        byteCounter = 0;
-                                        if (end == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-                                    }
+                                    DecodeBit(ref result, ref end, ref byteCounter, ref done, k, i);
+                                    if (done) break;
                                     if (colorCounter == 3)
                                     {
                                         colorCounter = 0;
@@ -405,24 +307,8 @@ namespace Encryption
                                 if (done) break;
                                 for (int i = bitmap.Height - 1; i >= 0;)
                                 {
-                                    char currentColor = Colors.SelectionBoxItem.ToString().ToUpper()[colorCounter];
-                                    System.Drawing.Color currentPixel = bitmap.GetPixel(k, i);
-                                    int bit = Convert.ToInt32(currentPixel.GetType().GetProperty(currentColor.ToString()).GetValue(currentPixel, null)) % 2;
-                                    result += bit;
-                                    end <<= 1;
-                                    end += (byte)bit;
-                                    byteCounter++;
-
-                                    colorCounter++;
-                                    if (byteCounter == 8)
-                                    {
-                                        byteCounter = 0;
-                                        if (end == 0)
-                                        {
-                                            done = true;
-                                            break;
-                                        }
-                                    }
+                                    DecodeBit(ref result, ref end, ref byteCounter, ref done, k, i);
+                                    if (done) break;
                                     if (colorCounter == 3)
                                     {
                                         colorCounter = 0;
@@ -436,7 +322,7 @@ namespace Encryption
                     Text.Text = "Сообщение: " + BinaryToString(result);
                 }
             }
-            else
+            catch (NullReferenceException) when (bitmap == null)
             {
                 MessageBox.Show("Выберите картинку");
             }
