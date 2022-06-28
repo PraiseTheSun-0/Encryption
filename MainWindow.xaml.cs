@@ -52,13 +52,34 @@ namespace Encryption
             switch (color)
             {
                 case 'R':
-                    pixel = System.Drawing.Color.FromArgb(pixel.R - 1, pixel.G, pixel.B);
+                    if (pixel.R > 0)
+                    {
+                        pixel = System.Drawing.Color.FromArgb(pixel.R - 1, pixel.G, pixel.B);
+                    }
+                    else
+                    {
+                        pixel = System.Drawing.Color.FromArgb(pixel.R + 1, pixel.G, pixel.B);
+                    }
                     break;
                 case 'G':
-                    pixel = System.Drawing.Color.FromArgb(pixel.R, pixel.G - 1, pixel.B);
+                    if (pixel.G > 0)
+                    {
+                        pixel = System.Drawing.Color.FromArgb(pixel.R, pixel.G - 1, pixel.B);
+                    }
+                    else
+                    {
+                        pixel = System.Drawing.Color.FromArgb(pixel.R, pixel.G + 1, pixel.B);
+                    }
                     break;
                 case 'B':
-                    pixel = System.Drawing.Color.FromArgb(pixel.R, pixel.G, pixel.B - 1);
+                    if (pixel.B > 0)
+                    {
+                        pixel = System.Drawing.Color.FromArgb(pixel.R, pixel.G, pixel.B - 1);
+                    }
+                    else
+                    {
+                        pixel = System.Drawing.Color.FromArgb(pixel.R, pixel.G, pixel.B + 1);
+                    }
                     break;
             }
         }
